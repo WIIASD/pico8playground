@@ -15,9 +15,18 @@ Showcases of some of the stuff I have for now.
 
 ### Text Box
 
+[DEMO](https://wiiasd.github.io/pico8playground/text_box/build/html/text_box.html)
+
+Control:
+- x to change palette
+- Up/down keys to control text box width
+- Left/right keys to toggle between long/short text
+
 This is a module to spawn text boxes on the screen with custom position, text and palette.
 
 ### Rotating Cube
+
+[DEMO](https://wiiasd.github.io/pico8playground/rotating_cube/build/html/rotating_cube.html)
 
 Just a rotating wire frame cube constructed by connecting 8 points. Most of the implementation referenced from: https://www.youtube.com/watch?v=p4Iz0XJY-Qk&t=1414s&ab_channel=TheCodingTrain
 
