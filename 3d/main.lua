@@ -1,24 +1,3 @@
-function create_vec3d(x,y,z)
-    local r = {}
-    r.x = x
-    r.y = y
-    r.z = z
-    r.tomat = function(self)
-        return {{self.x,self.y,self.z}}
-    end
-    r.copy = function(self)
-        return create_vec3d(self.x, self.y, self.z)
-    end
-    r.rotate = function(self, rotate_mat)
-        local vmat = self:tomat()
-        local r = matmul(vmat, rotate_mat)
-        self.x = r[1][1]
-        self.y = r[1][2]
-        self.z = r[1][3]
-    end
-    return r
-end
-
 function create_triangle(vertices)
     local r = {}
     r.vertices = vertices
@@ -60,6 +39,7 @@ fov = 0.25
 znear = 0.1
 zfar = 1000
 angle = 0
+vCamera = create_vec3d(0,0,0)
 
 rotate_x = {}
 rotate_y = {}
@@ -141,33 +121,50 @@ function _draw()
 
         --rotate
         for i=1, 3, 1 do
-            tri_tmp.vertices[i]:rotate(rotate_x)
-            tri_tmp.vertices[i]:rotate(rotate_y)
-            tri_tmp.vertices[i]:rotate(rotate_z)
+            tri_tmp.vertices[i] = tri_tmp.vertices[i]:rotate(rotate_x)
+            tri_tmp.vertices[i] = tri_tmp.vertices[i]:rotate(rotate_y)
+            tri_tmp.vertices[i] = tri_tmp.vertices[i]:rotate(rotate_z)
         end
 
         --translate
         for i=1, 3, 1 do
             tri_tmp.vertices[i].z += 2
         end
+        
+        --normal
+        local line1 = create_vec3d(
+            tri_tmp.vertices[2].x - tri_tmp.vertices[1].x,
+            tri_tmp.vertices[2].y - tri_tmp.vertices[1].y,
+            tri_tmp.vertices[2].z - tri_tmp.vertices[1].z
+        )
+        local line2 = create_vec3d(
+            tri_tmp.vertices[3].x - tri_tmp.vertices[1].x,
+            tri_tmp.vertices[3].y - tri_tmp.vertices[1].y,
+            tri_tmp.vertices[3].z - tri_tmp.vertices[1].z
+        )
 
-        --project
-        local projected_vertices = {
-            project(tri_tmp.vertices[1], project_mat),
-            project(tri_tmp.vertices[2], project_mat),
-            project(tri_tmp.vertices[3], project_mat)
-        }
-        tri_tmp = create_triangle(projected_vertices)
+        local normal = line1:cross(line2):normalized()
 
-        --offset and scale
-        for i=1, 3, 1 do
-            tri_tmp.vertices[i].x+=1
-            tri_tmp.vertices[i].y+=1
-            tri_tmp.vertices[i].x*=0.5 * screen_w
-            tri_tmp.vertices[i].y*=0.5 * screen_h
+        --dot product between pointing from any point on the triangle to the camera (point-camera) and the normal vector
+        if normal:dot(tri_tmp.vertices[1]:add(vCamera:scale(-1))) < 0 then
+            --project
+            local projected_vertices = {
+                project(tri_tmp.vertices[1], project_mat),
+                project(tri_tmp.vertices[2], project_mat),
+                project(tri_tmp.vertices[3], project_mat)
+            }
+            tri_tmp = create_triangle(projected_vertices)
+    
+            --offset and scale
+            for i=1, 3, 1 do
+                tri_tmp.vertices[i].x+=1
+                tri_tmp.vertices[i].y+=1
+                tri_tmp.vertices[i].x*=0.5 * screen_w
+                tri_tmp.vertices[i].y*=0.5 * screen_h
+            end
+    
+            tri_tmp:draw()
         end
-
-        tri_tmp:draw()
 
     end
 end

@@ -1,6 +1,6 @@
 {
     "workbench.colorTheme": "PICO-8 Editor-Only",
-    "editor.fontFamily": "PICO-8 mono upper",
+    "editor.fontFamily": "Consolas, 'Courier New', monospace",
     "markdown.preview.lineHeight": 1,
     "editor.fontWeight": "normal",
     "editor.fontSize": 22
