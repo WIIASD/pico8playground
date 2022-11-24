@@ -45,6 +45,8 @@ rotate_x = {}
 rotate_y = {}
 rotate_z = {}
 
+--perspective projection matrix
+--4x4 because we need to store the z value in the w place of the vector, and divide all other entries of the resulted vector by z
 project_mat = {
     {a/tan(fov/2), 0, 0, 0},
     {0, 1/tan(fov/2), 0, 0},
@@ -114,7 +116,7 @@ function _update60()
 end
 
 function _draw()
-    cls()
+    cls(1)
     for tri in all(mesh.tris) do
 
         local tri_tmp = tri:copy()
@@ -132,21 +134,14 @@ function _draw()
         end
         
         --normal
-        local line1 = create_vec3d(
-            tri_tmp.vertices[2].x - tri_tmp.vertices[1].x,
-            tri_tmp.vertices[2].y - tri_tmp.vertices[1].y,
-            tri_tmp.vertices[2].z - tri_tmp.vertices[1].z
-        )
-        local line2 = create_vec3d(
-            tri_tmp.vertices[3].x - tri_tmp.vertices[1].x,
-            tri_tmp.vertices[3].y - tri_tmp.vertices[1].y,
-            tri_tmp.vertices[3].z - tri_tmp.vertices[1].z
-        )
+        local line1 = tri_tmp.vertices[2]:sub(tri_tmp.vertices[1])
+        local line2 = tri_tmp.vertices[3]:sub(tri_tmp.vertices[1])
 
         local normal = line1:cross(line2):normalized()
 
-        --dot product between pointing from any point on the triangle to the camera (point-camera) and the normal vector
-        if normal:dot(tri_tmp.vertices[1]:add(vCamera:scale(-1))) < 0 then
+        --note: dot product (between camera and triangle normal) < 0 means the similarity between their directions is low, since the light cannot be reflected on the surface if the surface is facing at the same direction as the light source
+        local camera2v = tri_tmp.vertices[1]:sub(vCamera)
+        if normal:dot(camera2v) < 0 then
             --project
             local projected_vertices = {
                 project(tri_tmp.vertices[1], project_mat),

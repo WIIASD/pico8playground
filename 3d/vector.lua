@@ -25,6 +25,13 @@ function create_vec3d(x,y,z)
             self.z + v.z
         )
     end
+    r.sub = function(self, v)
+        return create_vec3d(
+            self.x - v.x,
+            self.y - v.y,
+            self.z - v.z
+        )
+    end
     r.scale = function(self, n)
         return create_vec3d(
             self.x * n,
