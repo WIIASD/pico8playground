@@ -19,6 +19,15 @@ function create_triangle(vertices)
             line(self.vertices[i].x, self.vertices[i].y, self.vertices[np].x, self.vertices[np].y)
         end
     end
+    r.fill = function(self)
+        --sort vertices according to y value
+        --choose v2 as p1
+        --find inverse slope, inv_m, of the line v1 --> v3
+        --curx = v1.x
+        --for y=v1.y, y>=v3.y, y--
+            --line(curx, y)
+            --curx -= inv_m
+    end
     r.copy = function(self)
         return create_triangle({
             self.vertices[1]:copy(), 
