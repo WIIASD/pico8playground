@@ -31,9 +31,9 @@ This is a module to spawn text boxes on the screen with custom position, text an
 Just a rotating wire frame cube constructed by connecting 8 points. Most of the implementation referenced from: https://www.youtube.com/watch?v=p4Iz0XJY-Qk&t=1414s&ab_channel=TheCodingTrain
 
 ### 3D Graphic
-
+[DEMO](https://wiiasd.github.io/pico8playground/3d/build/html/3d.html)
 Pico-8 implementation of this series of tutorial: https://www.youtube.com/watch?v=ih20l3pJoeU&t=355s&ab_channel=javidx9
 
 - [x] Episode 1
-- [ ] Episode 2
+- [x] Episode 2
 - [ ] Episode 3
