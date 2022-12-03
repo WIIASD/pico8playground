@@ -79,7 +79,9 @@ zfar = 1000
 angle = 0
 yaw = 0
 xaw = 0
+zaw = 0
 v_camera = create_vec3d(0,0,0)
+v_dir_light = create_vec3d(0,0,1)
 v_lookdir = create_vec3d(0,0,1)
 v_up = create_vec3d(0,1,0)
 v_right = v_up:cross(v_lookdir)
@@ -94,11 +96,11 @@ project_mat = {
 }
 
 function _update60()
-    v_forward = create_vec3d(1,0,0):scale(v_lookdir.x)
-                                   :add(create_vec3d(0,0,1):scale(v_lookdir.z))
-                                   :normalized()
-                                   :scale(0.1) 
-
+    -- v_forward = create_vec3d(1,0,0):scale(v_lookdir.x)
+    --                                :add(create_vec3d(0,0,1):scale(v_lookdir.z))
+    --                                :normalized()
+    --                                :scale(0.1) 
+    v_forward = v_lookdir:scale(0.1)
     if btn(0) then
         v_camera = v_camera:add(v_right:scale(0.1))
     elseif btn(1) then
@@ -109,6 +111,12 @@ function _update60()
         v_camera = v_camera:add(v_forward)
     elseif btn(3) then
         v_camera = v_camera:sub(v_forward)
+    end
+
+    if btn(4) then
+        zaw=0.005
+    elseif btn(5) then
+        zaw=-0.005
     end
 
     if btn(0,1) then
@@ -129,7 +137,7 @@ function _update60()
 end
 
 function _draw()
-    cls(1)
+    cls(13)
     --rotate look direction
     v_lookdir = v_lookdir:rotate_around(yaw, v_up):normalized()
     v_lookdir = v_lookdir:rotate_around(xaw, v_right):normalized()
@@ -156,11 +164,27 @@ function _draw()
         --front face culling
         --note: dot product (between camera and triangle normal) < 0 means the similarity between their directions is low, since the light cannot be reflected on the surface if the surface is facing at the same direction as the light source
         local camera2v = tri_tmp.vertices[1]:sub(v_camera)
+        local light2v = tri_tmp.vertices[1]:sub(v_dir_light)
+        local col = 11
         --cannot see triangle, not rendering
         if tri_tmp.normal:dot(camera2v) >= 0 then
             goto continue
         end
-
+        --calculate light value
+        local lum = -tri_tmp.normal:dot(v_dir_light)
+        if lum >= 0 then
+            if lum < 0.3333 then
+                col = 5
+            elseif lum < 0.666 then
+                col = 6
+            elseif lum < 1 then
+                col = 7
+            else
+                col = 7
+            end
+        else
+            col = 0
+        end
         ------------------Render-----------------------
 
         --project to view space
@@ -178,9 +202,9 @@ function _draw()
         tri_tmp = tri_tmp:add(create_vec3d(1,1,0))
                          :mul(create_vec3d(0.5 * screen_w, 0.5 * screen_h, 1))
 
-        tri_tmp:draw()
-
+        tri_tmp:fill(col)
+        --tri_tmp:draw(11)
         ::continue::
     end
-    --angle+=0.004
+    angle+=0.002
 end

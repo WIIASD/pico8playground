@@ -8,6 +8,8 @@ function _init()
 		v2={x=rnd(127), y=rnd(127)},
 		v3={x=rnd(127), y=rnd(127)}
 	}
+	tri.v3.y = tri.v1.y+1
+	tri.v2.x = tri.v1.x
 	sorted_tri = sort(tri)
 end
 
@@ -18,6 +20,8 @@ function _update60()
 			v2={x=rnd(127), y=rnd(127)},
 			v3={x=rnd(127), y=rnd(127)}
 		}
+		tri.v3.y = tri.v1.y+1
+		tri.v2.x = tri.v1.x
 		sorted_tri = sort(tri)
 	end
 end
@@ -107,15 +111,31 @@ end
 -->8
 function fill(tri)
 	local v1 = tri.v1
- local v2 = tri.v2
- local v3 = tri.v3
-	local m = (v3.y-v1.y) / (v3.x-v1.x)
-	local b = v3.y - m * v3.x
-	local p = {x=(v2.y-b)/m,y=v2.y}
+	local v2 = tri.v2
+	local v3 = tri.v3
+	if (v2.y == v3.y) then
+		fill_lower(v1, v2, v3);
+		return
+	end
+	if v1.y == v2.y then
+		fill_upper(v1, v2, v3);
+		return
+	end
+
+	--this will cause problem to some right triangles...
+	--local m = (v3.y-v1.y) / (v3.x-v1.x)
+	--local b = v3.y - m * v3.x
+	--local p = {x=(v2.y-b)/m,y=v2.y}
 	
- fill_lower(v1,v2,p)
- line(p.x,p.y,v2.x,v2.y,10)
+	local p = {
+    	x=(v1.x + ((v2.y - v1.y) / (v3.y - v1.y)) * (v3.x - v1.x)), 
+		y=v2.y
+	}
+
+	fill_lower(v1,v2,p)
+	line(p.x,p.y,v2.x,v2.y,10)
 	fill_upper(v2,p,v3)
+	circfill(p.x,p.y,2,7)
 end
 
 function fill_lower(v1,v2,v3)
