@@ -67,10 +67,7 @@ function _init()
     fov = 0.25
     znear = 0.1
     zfar = 1000
-    angle = 0
-    yaw = 0
-    xaw = 0
-    zaw = 0
+    x_angle, y_angle, z_angle = 0, 0, 0
     v_camera = vec3d:new(0,0,0)
     v_dir_light = vec3d:new(0,0,1)
     v_lookdir = vec3d:new(0,0,1)
@@ -88,47 +85,33 @@ function _init()
 end
 
 function _update60()
-    v_forward = v_lookdir * 0.1
-    if btn(0) then
-        v_camera = v_camera + v_right * 0.1
-    elseif btn(1) then
-        v_camera = v_camera - v_right * 0.1
-    end
 
-    if btn(2) then
-        v_camera = v_camera + v_forward
-    elseif btn(3) then
-        v_camera = v_camera - v_forward
-    end
-
-    if btn(4) then
-        zaw=0.005
-    elseif btn(5) then
-        zaw=-0.005
-    end
-
-    if btn(0,1) then
-        yaw=0.005
-    elseif btn(1,1) then
-        yaw=-0.005
+    if not btn(4) then
+        if btn(0) then
+            y_angle += 0.005
+        elseif btn(1) then
+            y_angle -= 0.005
+        end
+        if btn(2) then
+            x_angle -= 0.005
+        elseif btn(3) then
+            x_angle += 0.005
+        end
     else
-        yaw=0
+        if btn(0) then
+            v_dir_light = vec_rotate_around(v_dir_light, 0.005, vec3d:new(0,1,0))
+        elseif btn(1) then
+            v_dir_light = vec_rotate_around(v_dir_light, -0.005, vec3d:new(0,1,0))
+        elseif btn(2) then
+            v_camera += vec3d:new(0,0,0.05)
+        elseif btn(3) then
+            v_camera -= vec3d:new(0,0,0.05)
+        end
     end
-    if btn(2,1) then
-        xaw=-0.005
-    elseif btn(3,1) then
-        xaw=0.005
-    else
-        xaw=0
-    end
-
 end
 
 function _draw()
     cls(1)
-    --rotate look direction
-    v_lookdir = vec_rotate_around(v_lookdir, yaw, v_up):normalized()
-    v_lookdir = vec_rotate_around(v_lookdir, xaw, v_right):normalized()
     
     --update new up and right vector based on rotated look direction
     local a = v_lookdir * v_up:dot(v_lookdir)
@@ -146,7 +129,7 @@ function _draw()
         local tri_tmp = tri:copy()
 
         --rotate
-        tri_tmp = tri_tmp:rotate(angle, angle, angle)
+        tri_tmp = tri_tmp:rotate(x_angle, y_angle, z_angle)
 
         --z offset into the screen
         tri_tmp = tri_tmp:add(vec3d:new(0,0,2))
@@ -197,5 +180,4 @@ function _draw()
         tri_tmp:draw(0)
         ::continue::
     end
-    angle+=0.002
 end
