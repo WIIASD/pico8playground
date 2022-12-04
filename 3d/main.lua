@@ -34,7 +34,32 @@ function pointat_inv(pointat_mat)
     }
 end
 
+function set_line_style(lum)
+    if lum >= 0 then
+        if lum < 1/7 then
+            poke(0x5f3a, 0)
+        elseif lum < 2/7 then
+            poke(0x5f3a, 1)
+        elseif lum < 3/7 then
+            poke(0x5f3a, 2)
+        elseif lum < 4/7 then
+            poke(0x5f3a, 3)
+        elseif lum < 5/7 then
+            poke(0x5f3a, 4)
+        elseif lum < 6/7 then
+            poke(0x5f3a, 5)
+        elseif lum <= 1 then
+            poke(0x5f3a, 6)
+        end
+    else
+        poke(0x5f3a, 0)
+    end
+end
+
 function _init()
+    poke(0x5f38, 1)
+    poke(0x5f39, 1)
+    palt(0, false)
     --front
     local p1 = vec3d:new(-0.5,-0.5,-0.5)
     local p2 = vec3d:new(-0.5,0.5,-0.5)
@@ -99,9 +124,9 @@ function _update60()
         end
     else
         if btn(0) then
-            v_dir_light = vec_rotate_around(v_dir_light, 0.005, vec3d:new(0,1,0))
-        elseif btn(1) then
             v_dir_light = vec_rotate_around(v_dir_light, -0.005, vec3d:new(0,1,0))
+        elseif btn(1) then
+            v_dir_light = vec_rotate_around(v_dir_light, 0.005, vec3d:new(0,1,0))
         elseif btn(2) then
             v_camera += vec3d:new(0,0,0.05)
         elseif btn(3) then
@@ -138,26 +163,13 @@ function _draw()
         --note: dot product (between camera and triangle normal) < 0 means the similarity between their directions is low, since the light cannot be reflected on the surface if the surface is facing at the same direction as the light source
         local camera2v = tri_tmp.vertices[1] - v_camera
         local light2v = tri_tmp.vertices[1] - v_dir_light
-        local col = 11
         --cannot see triangle, not rendering
         if tri_tmp.normal:dot(camera2v) >= 0 then
             goto continue
         end
         --calculate light value
         local lum = -tri_tmp.normal:dot(v_dir_light)
-        if lum >= 0 then
-            if lum < 0.3333 then
-                col = 5
-            elseif lum < 0.666 then
-                col = 6
-            elseif lum < 1 then
-                col = 7
-            else
-                col = 7
-            end
-        else
-            col = 0
-        end
+        set_line_style(lum)
         ------------------Render-----------------------
 
         --project to view space
@@ -175,9 +187,9 @@ function _draw()
         tri_tmp = tri_tmp:add(vec3d:new(1,1,0)):mul(vec3d:new(0.5 * screen_w, 0.5 * screen_h, 1))
         
         add(tri_draw, tri_tmp)
-        tri_tmp:fill(col)
-        tri_tmp:draw(col)
-        tri_tmp:draw(0)
+        tri_tmp:fill()
+        tri_tmp:draw()
+        --tri_tmp:draw(0)
         ::continue::
     end
 end
