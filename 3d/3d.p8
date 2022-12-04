@@ -2,7 +2,8 @@ pico-8 cartridge // http://www.pico-8.com
 version 36
 __lua__
 #include ../matrix/matrix.lua
-#include vector.lua
+#include ../vector/vec3d/vec3d.lua
+#include v3d_helper.lua
 #include triangle.lua
 #include main.lua
 __gfx__

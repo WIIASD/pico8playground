@@ -9,9 +9,9 @@ function tan(a)
 end
 
 function project(v3d, project_mat)
-    local r = v3d:matmul(project_mat)
+    local r = vec_matmul(v3d, project_mat)
     if r.w~=0 then
-        r = r:scale(1/r.w)
+        r *= (1/r.w)
     end
     return r
 end
@@ -28,10 +28,10 @@ end
 --inverse (only) the point at matrix
 function pointat_inv(pointat_mat)
     local m = pointat_mat
-    local a = create_vec3d(m[1][1],m[1][2],m[1][3])
-    local b = create_vec3d(m[2][1],m[2][2],m[2][3])
-    local c = create_vec3d(m[3][1],m[3][2],m[3][3])
-    local t = create_vec3d(m[4][1],m[4][2],m[4][3])
+    local a = vec3d:new(m[1][1],m[1][2],m[1][3])
+    local b = vec3d:new(m[2][1],m[2][2],m[2][3])
+    local c = vec3d:new(m[3][1],m[3][2],m[3][3])
+    local t = vec3d:new(m[4][1],m[4][2],m[4][3])
     return{
         {a.x,b.x,c.x,0},
         {a.y,b.y,c.y,0},
@@ -42,15 +42,15 @@ end
 
 function _init()
     --front
-    local p1 = create_vec3d(-0.5,-0.5,-0.5)
-    local p2 = create_vec3d(-0.5,0.5,-0.5)
-    local p3 = create_vec3d(0.5,0.5,-0.5)
-    local p4 = create_vec3d(0.5,-0.5,-0.5)
+    local p1 = vec3d:new(-0.5,-0.5,-0.5)
+    local p2 = vec3d:new(-0.5,0.5,-0.5)
+    local p3 = vec3d:new(0.5,0.5,-0.5)
+    local p4 = vec3d:new(0.5,-0.5,-0.5)
     --back
-    local p5 = create_vec3d(-0.5,-0.5,0.5)
-    local p6 = create_vec3d(-0.5,0.5,0.5)
-    local p7 = create_vec3d(0.5,0.5,0.5)
-    local p8 = create_vec3d(0.5,-0.5,0.5)
+    local p5 = vec3d:new(-0.5,-0.5,0.5)
+    local p6 = vec3d:new(-0.5,0.5,0.5)
+    local p7 = vec3d:new(0.5,0.5,0.5)
+    local p8 = vec3d:new(0.5,-0.5,0.5)
 
     mesh = create_mesh({
         create_triangle({p1,p2,p3}),
@@ -80,10 +80,10 @@ angle = 0
 yaw = 0
 xaw = 0
 zaw = 0
-v_camera = create_vec3d(0,0,0)
-v_dir_light = create_vec3d(0,0,1)
-v_lookdir = create_vec3d(0,0,1)
-v_up = create_vec3d(0,1,0)
+v_camera = vec3d:new(0,0,0)
+v_dir_light = vec3d:new(0,0,1)
+v_lookdir = vec3d:new(0,0,1)
+v_up = vec3d:new(0,1,0)
 v_right = v_up:cross(v_lookdir)
 
 --perspective projection matrix
@@ -96,21 +96,21 @@ project_mat = {
 }
 
 function _update60()
-    -- v_forward = create_vec3d(1,0,0):scale(v_lookdir.x)
-    --                                :add(create_vec3d(0,0,1):scale(v_lookdir.z))
+    -- v_forward = vec3d:new(1,0,0):scale(v_lookdir.x)
+    --                                :add(vec3d:new(0,0,1):scale(v_lookdir.z))
     --                                :normalized()
     --                                :scale(0.1) 
-    v_forward = v_lookdir:scale(0.1)
+    v_forward = v_lookdir * 0.1
     if btn(0) then
-        v_camera = v_camera:add(v_right:scale(0.1))
+        v_camera = v_camera + v_right * 0.1
     elseif btn(1) then
-        v_camera = v_camera:sub(v_right:scale(0.1))
+        v_camera = v_camera - v_right * 0.1
     end
 
     if btn(2) then
-        v_camera = v_camera:add(v_forward)
+        v_camera = v_camera + v_forward
     elseif btn(3) then
-        v_camera = v_camera:sub(v_forward)
+        v_camera = v_camera - v_forward
     end
 
     if btn(4) then
@@ -139,12 +139,12 @@ end
 function _draw()
     cls(13)
     --rotate look direction
-    v_lookdir = v_lookdir:rotate_around(yaw, v_up):normalized()
-    v_lookdir = v_lookdir:rotate_around(xaw, v_right):normalized()
+    v_lookdir = vec_rotate_around(v_lookdir, yaw, v_up):normalized()
+    v_lookdir = vec_rotate_around(v_lookdir, xaw, v_right):normalized()
     
     --update new up and right vector based on rotated look direction
-    local a = v_lookdir:scale(v_up:dot(v_lookdir))
-    v_up = v_up:sub(a):normalized()
+    local a = v_lookdir * v_up:dot(v_lookdir)
+    v_up = (v_up - a):normalized()
     v_right = v_up:cross(v_lookdir) 
 
     local mat_camera = pointat_mat(v_camera, v_lookdir, v_up, v_right)
@@ -159,12 +159,12 @@ function _draw()
         tri_tmp = tri_tmp:rotate(angle, angle, angle)
 
         --z offset into the screen
-        tri_tmp = tri_tmp:add(create_vec3d(0,0,2))
+        tri_tmp = tri_tmp:add(vec3d:new(0,0,2))
 
         --front face culling
         --note: dot product (between camera and triangle normal) < 0 means the similarity between their directions is low, since the light cannot be reflected on the surface if the surface is facing at the same direction as the light source
-        local camera2v = tri_tmp.vertices[1]:sub(v_camera)
-        local light2v = tri_tmp.vertices[1]:sub(v_dir_light)
+        local camera2v = tri_tmp.vertices[1] - v_camera
+        local light2v = tri_tmp.vertices[1] - v_dir_light
         local col = 11
         --cannot see triangle, not rendering
         if tri_tmp.normal:dot(camera2v) >= 0 then
@@ -199,8 +199,7 @@ function _draw()
         tri_tmp = create_triangle(projected_vertices)
 
         --offset and scale
-        tri_tmp = tri_tmp:add(create_vec3d(1,1,0))
-                         :mul(create_vec3d(0.5 * screen_w, 0.5 * screen_h, 1))
+        tri_tmp = tri_tmp:add(vec3d:new(1,1,0)):mul(vec3d:new(0.5 * screen_w, 0.5 * screen_h, 1))
 
         tri_tmp:fill(col)
         --tri_tmp:draw(11)

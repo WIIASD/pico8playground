@@ -129,37 +129,30 @@ function create_triangle(vertices)
     end
     r.rotate = function(self, a, b, c)
         return create_triangle({
-            self.vertices[1]:rotate(a,b,c),
-            self.vertices[2]:rotate(a,b,c),
-            self.vertices[3]:rotate(a,b,c)
+            vec_rotate(self.vertices[1],a,b,c),
+            vec_rotate(self.vertices[2],a,b,c),
+            vec_rotate(self.vertices[3],a,b,c)
         })
     end
     r.add = function(self, v)
         return create_triangle({
-            self.vertices[1]:add(v),
-            self.vertices[2]:add(v),
-            self.vertices[3]:add(v)
-        })
-    end
-    r.scale = function(self, n)
-        return create_triangle({
-            self.vertices[1]:scale(n),
-            self.vertices[2]:scale(n),
-            self.vertices[3]:scale(n)
+            self.vertices[1]+v,
+            self.vertices[2]+v,
+            self.vertices[3]+v
         })
     end
     r.mul = function(self, v)
         return create_triangle({
-            self.vertices[1]:mul(v),
-            self.vertices[2]:mul(v),
-            self.vertices[3]:mul(v)
+            self.vertices[1]*v,
+            self.vertices[2]*v,
+            self.vertices[3]*v
         })
     end
     r.matmul = function(self, m)
         return create_triangle ({
-            self.vertices[1]:matmul(m),
-            self.vertices[2]:matmul(m),
-            self.vertices[3]:matmul(m)
+            vec_matmul(self.vertices[1],m),
+            vec_matmul(self.vertices[2],m),
+            vec_matmul(self.vertices[3],m)
         })
     end
     return r
