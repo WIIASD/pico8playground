@@ -34,8 +34,9 @@ Just a rotating wire frame cube constructed by connecting 8 points. Most of the 
 [DEMO](https://wiiasd.github.io/pico8playground/3d/build/html/3d.html)
 
 Control:
-- Arrow keys to move
-- e,s,d,f to rotate
+- Arrow keys to rotate cube
+- Pressed z and up/down keys to zoom in/out
+- Pressed z and left/right keys to rotate light source
 
 Pico-8 implementation of this series of tutorial: https://www.youtube.com/watch?v=ih20l3pJoeU&t=355s&ab_channel=javidx9
 
