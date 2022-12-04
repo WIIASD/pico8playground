@@ -1,12 +1,17 @@
+function vec_tomat(v)
+    return {{v.x,v.y,v.z,v.w}}
+end
+
 function vec_rotate(vec, a, b, c)
     --rotation matrix
+    --rotate around x axis by a, y axis by b, z axis by c
     local rotation_xyz = {
         {cos(b)*cos(c), -cos(b)*sin(c), sin(b),0},
         {sin(a)*sin(b)*cos(c)+cos(a)*sin(c),cos(a)*cos(c)-sin(a)*sin(b)*sin(c),-sin(a)*cos(b),0},
         {sin(a)*sin(c)-cos(a)*sin(b)*cos(c),cos(a)*sin(b)*sin(c)+sin(a)*cos(c),cos(a)*cos(b),0},
         {0,0,0,1}
     }
-    local r_mat = matmul(vec:tomat(), rotation_xyz)
+    local r_mat = matmul(vec_tomat(vec), rotation_xyz)
     return vec3d:new(
         r_mat[1][1],
         r_mat[1][2],
@@ -14,7 +19,7 @@ function vec_rotate(vec, a, b, c)
         r_mat[1][4]
     )
 end
---rotate vec around v
+--rotate vec around vector v
 function vec_rotate_around(vec, a, v)
     local x = v.x
     local y = v.y
@@ -28,7 +33,7 @@ function vec_rotate_around(vec, a, v)
         {z*x*nc-y*s,z*y*nc+x*s,z*z*nc+c,0},
         {0,0,0,1}
     }
-    local r_mat = matmul(vec:tomat(), rotation)
+    local r_mat = matmul(vec_tomat(vec), rotation)
     return vec3d:new(
         r_mat[1][1],
         r_mat[1][2],
@@ -38,7 +43,7 @@ function vec_rotate_around(vec, a, v)
 end
 
 function vec_matmul(vec, m)
-    local v = matmul(vec:tomat(),m)
+    local v = matmul(vec_tomat(vec),m)
     return vec3d:new(
         v[1][1],
         v[1][2],

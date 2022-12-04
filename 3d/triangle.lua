@@ -28,57 +28,25 @@ local function fill_upper(v1,v2,v3, col)
 end
 
 local function sort(tri)
-	local y1 = tri.vertices[1].y
-	local y2 = tri.vertices[2].y
-	local y3 = tri.vertices[3].y
-	
-	local v1_y = min(y1,min(y2,y3))
-	local v2_y = mid(y1,y2,y3)
-	local v3_y = max(y1,max(y2,y3))
-	
-    local old_tri = {
-            {x=tri.vertices[1].x, y=y1},
-            {x=tri.vertices[2].x, y=y2},
-            {x=tri.vertices[3].x, y=y3}
-        }
-    local new_tri = {
-            v1={},
-            v2={},
-            v3={}
-        }
-	for v in all(old_tri) do
-		if v1_y == v.y then
-			new_tri.v1.x =v.x
-			new_tri.v1.y =v1_y
-			del(old_tri, v)
-			break
-		end
-	end
-	for v in all(old_tri) do
-		if v2_y == v.y then
-			new_tri.v2.x =v.x
-			new_tri.v2.y =v2_y
-			del(old_tri, v)
-			break
-		end
-	end
-	for v in all(old_tri) do
-		if v3_y == v.y then
-			new_tri.v3.x =v.x
-			new_tri.v3.y =v3_y
-			del(old_tri, v)
-			break	
-		end
-	end
-	
-	return new_tri
+    local tri_tmp = tri:copy()
+    local tri_v = tri_tmp.vertices
+	if tri_v[2].y < tri_v[1].y then
+        tri_v[1], tri_v[2] = tri_v[2], tri_v[1]
+    end
+    if tri_v[3].y < tri_v[2].y then
+        tri_v[2], tri_v[3] = tri_v[3], tri_v[2]
+        if tri_v[2].y < tri_v[1].y then
+            tri_v[1], tri_v[2] = tri_v[2], tri_v[1]
+        end
+    end
+	return tri_tmp
 end
 
 function create_triangle(vertices)
     --private
     local calculate_normal = function(vertices)
-        local line1 = vertices[2]:sub(vertices[1])
-        local line2 = vertices[3]:sub(vertices[1])
+        local line1 = vertices[2] - vertices[1]
+        local line2 = vertices[3] - vertices[1]
 
         return line1:cross(line2):normalized()
     end
@@ -97,9 +65,9 @@ function create_triangle(vertices)
     end
     r.fill = function(self, col)
         local sorted = sort(self)
-        local v1 = sorted.v1
-        local v2 = sorted.v2
-        local v3 = sorted.v3
+        local v1 = sorted.vertices[1]
+        local v2 = sorted.vertices[2]
+        local v3 = sorted.vertices[3]
 
         if (v2.y == v3.y) then
             fill_lower(v1, v2, v3, col);

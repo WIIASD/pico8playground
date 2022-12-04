@@ -21,10 +21,6 @@ function vec3d:new(x,y,z,w)
     return v
 end
 
-function vec3d:tomat()
-    return {{self.x,self.y,self.z,self.w}}
-end
-
 function vec3d:copy()
     return vec3d:new(self.x, self.y, self.z)
 end

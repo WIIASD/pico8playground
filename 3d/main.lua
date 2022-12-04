@@ -1,9 +1,3 @@
-function create_mesh(tris)
-    local r = {}
-    r.tris = tris
-    return r
-end
-
 function tan(a)
     return sin(a)/cos(a)
 end
@@ -52,7 +46,8 @@ function _init()
     local p7 = vec3d:new(0.5,0.5,0.5)
     local p8 = vec3d:new(0.5,-0.5,0.5)
 
-    mesh = create_mesh({
+    mesh = {}
+    mesh.tris = {
         create_triangle({p1,p2,p3}),
         create_triangle({p1,p3,p4}),
         create_triangle({p4,p3,p7}),
@@ -65,41 +60,34 @@ function _init()
         create_triangle({p2,p7,p3}),
         create_triangle({p8,p5,p1}),
         create_triangle({p8,p1,p4})
-    })
+    }
+    screen_w=128
+    screen_h=128
+    a = screen_w/screen_h
+    fov = 0.25
+    znear = 0.1
+    zfar = 1000
+    angle = 0
+    yaw = 0
+    xaw = 0
+    zaw = 0
+    v_camera = vec3d:new(0,0,0)
+    v_dir_light = vec3d:new(0,0,1)
+    v_lookdir = vec3d:new(0,0,1)
+    v_up = vec3d:new(0,1,0)
+    v_right = v_up:cross(v_lookdir)
+
+    --perspective projection matrix
+    --4x4 because we need to store the z value in the w place of the vector, and divide all other entries of the resulted vector by z
+    project_mat = {
+        {a/tan(fov/2), 0, 0, 0},
+        {0, 1/tan(fov/2), 0, 0},
+        {0, 0, zfar/(zfar - znear), 1},
+        {0, 0, (-zfar * znear)/(zfar - znear), 0}
+    }
 end
 
-mesh = {}
-
-screen_w=128
-screen_h=128
-a = screen_w/screen_h
-fov = 0.25
-znear = 0.1
-zfar = 1000
-angle = 0
-yaw = 0
-xaw = 0
-zaw = 0
-v_camera = vec3d:new(0,0,0)
-v_dir_light = vec3d:new(0,0,1)
-v_lookdir = vec3d:new(0,0,1)
-v_up = vec3d:new(0,1,0)
-v_right = v_up:cross(v_lookdir)
-
---perspective projection matrix
---4x4 because we need to store the z value in the w place of the vector, and divide all other entries of the resulted vector by z
-project_mat = {
-    {a/tan(fov/2), 0, 0, 0},
-    {0, 1/tan(fov/2), 0, 0},
-    {0, 0, zfar/(zfar - znear), 1},
-    {0, 0, (-zfar * znear)/(zfar - znear), 0}
-}
-
 function _update60()
-    -- v_forward = vec3d:new(1,0,0):scale(v_lookdir.x)
-    --                                :add(vec3d:new(0,0,1):scale(v_lookdir.z))
-    --                                :normalized()
-    --                                :scale(0.1) 
     v_forward = v_lookdir * 0.1
     if btn(0) then
         v_camera = v_camera + v_right * 0.1
@@ -137,7 +125,7 @@ function _update60()
 end
 
 function _draw()
-    cls(13)
+    cls(1)
     --rotate look direction
     v_lookdir = vec_rotate_around(v_lookdir, yaw, v_up):normalized()
     v_lookdir = vec_rotate_around(v_lookdir, xaw, v_right):normalized()
@@ -150,6 +138,8 @@ function _draw()
     local mat_camera = pointat_mat(v_camera, v_lookdir, v_up, v_right)
 
     local mat_view = pointat_inv(mat_camera)
+
+    local tri_draw = {}
 
     for tri in all(mesh.tris) do
 
@@ -200,9 +190,11 @@ function _draw()
 
         --offset and scale
         tri_tmp = tri_tmp:add(vec3d:new(1,1,0)):mul(vec3d:new(0.5 * screen_w, 0.5 * screen_h, 1))
-
+        
+        add(tri_draw, tri_tmp)
         tri_tmp:fill(col)
-        --tri_tmp:draw(11)
+        tri_tmp:draw(col)
+        tri_tmp:draw(0)
         ::continue::
     end
     angle+=0.002
