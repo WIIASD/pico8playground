@@ -135,7 +135,7 @@ function fill(tri)
 	fill_lower(v1,v2,p)
 	line(p.x,p.y,v2.x,v2.y,10)
 	fill_upper(v2,p,v3)
-	circfill(p.x,p.y,2,7)
+	--circfill(p.x,p.y,2,7)
 end
 
 function fill_lower(v1,v2,v3)
