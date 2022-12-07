@@ -4,23 +4,50 @@ function _init()
     poke(0x5f2d, 1)
 	s = seg:new(100,100,25)
 	s1 = seg:new(64,64,25)
-	ax = 64
-	ay = 64
-	tant = tentacle:new(ax, ay, 50, 2)
+	tant = tentacle:new(64, 64, 2, 25, -20)
+	groundy = 70
+	px = tant.anchorx - 30
+	pnow = px
 end
 
 function _update60()
+	if btn(0) then
+		tant.anchorx-=1
+	elseif btn(1) then
+		tant.anchorx+=1
+	end
 
+	if btn(2) then
+		tant.anchory-=1
+	elseif btn(3) then
+		tant.anchory+=1
+	end
 end
 
 function _draw()
 	cls()
 	mx=stat(32)
     my=stat(33)
-	
-	circfill(64,64,1,7)
+	px = tant.anchorx - 30
+	pclose = tant.anchorx - 17
+	pfar = tant.anchorx - 40
+
+
+	line(0,groundy, 127, groundy)
+
+	circfill(tant.anchorx,tant.anchory,1,7)
+	circfill(px, groundy, 1, 11)
+	circfill(pclose, groundy, 1, 11)
+	circfill(pfar, groundy, 1, 11)
 	circfill(mx,my,1,11)
-	tant:follow(mx,my)
+
+	print(tant.segs[1].angle)
+	print(tant.segs[2].angle)
+	print(tant.segs[1].angle - tant.segs[2].angle)
+	if pnow < pfar or pnow > pclose then
+		pnow = px
+	end
+	tant:follow(pnow,groundy)
 	tant:draw()
 end
 
@@ -52,7 +79,15 @@ function tentacle:new(anchorx, anchory, num, len)
 			for i=#s - 1, 1, -1 do
 				s[i] = s[i]:follow(s[i+1].tx, s[i+1].ty)
 			end
-			s[1] = seg:new(anchorx,anchory,s[1].len,s[1].angle)
+			local diff_a = s[1].angle - s[2].angle
+			local new_a = s[1].angle
+			if diff_a < 0 then
+				new_a -= diff_a 
+			end
+			if diff_a >= 1 then
+				new_a -= 1 - diff_a
+			end
+			s[1] = seg:new(self.anchorx,self.anchory,s[1].len, new_a)
 			for i=2, #s, 1 do
 				s[i] = seg:new(s[i-1].hx,s[i-1].hy, s[i].len, s[i].angle)
 			end

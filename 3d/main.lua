@@ -189,7 +189,7 @@ function _draw()
         add(tri_draw, tri_tmp)
         tri_tmp:fill()
         tri_tmp:draw()
-        --tri_tmp:draw(0)
+        tri_tmp:draw(0)
         ::continue::
     end
 end

@@ -8,8 +8,6 @@ function _init()
 		v2={x=rnd(127), y=rnd(127)},
 		v3={x=rnd(127), y=rnd(127)}
 	}
-	tri.v3.y = tri.v1.y+1
-	tri.v2.x = tri.v1.x
 	sorted_tri = sort(tri)
 end
 
@@ -20,8 +18,6 @@ function _update60()
 			v2={x=rnd(127), y=rnd(127)},
 			v3={x=rnd(127), y=rnd(127)}
 		}
-		tri.v3.y = tri.v1.y+1
-		tri.v2.x = tri.v1.x
 		sorted_tri = sort(tri)
 	end
 end
