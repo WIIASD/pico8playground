@@ -5,6 +5,7 @@ function _init()
 	s = seg:new(100,100,25)
 	s1 = seg:new(64,64,25)
 	tant = tentacle:new(64, 64, 2, 25, -20)
+	--tant.segs[1].len = 15
 	groundy = 70
 	px = tant.anchorx - 30
 	pnow = px
@@ -29,8 +30,8 @@ function _draw()
 	mx=stat(32)
     my=stat(33)
 	px = tant.anchorx - 30
-	pclose = tant.anchorx - 17
-	pfar = tant.anchorx - 40
+	pclose = tant.anchorx - 14
+	pfar = tant.anchorx - 45
 
 
 	line(0,groundy, 127, groundy)
@@ -44,11 +45,23 @@ function _draw()
 	print(tant.segs[1].angle)
 	print(tant.segs[2].angle)
 	print(tant.segs[1].angle - tant.segs[2].angle)
+
 	if pnow < pfar or pnow > pclose then
 		pnow = px
 	end
 	tant:follow(pnow,groundy)
+	-- tant:follow(mx, my)
 	tant:draw()
+end
+
+function clamp(a, min, max)
+	local new_a = a
+	if new_a < min then
+		new_a = min
+	elseif new_a > max then
+		new_a = max
+	end
+	return new_a
 end
 
 tentacle={}
@@ -72,21 +85,20 @@ function tentacle:new(anchorx, anchory, num, len)
 			s:draw()
 		end
 	end
+	t.angle_btw = function(self, i, j)
+		return self.segs[i].angle - self.segs[j].angle
+	end
 	t.follow = function(self, x, y)
 		local s = self.segs
 		s[#s] = s[#s]:follow(x, y)
-		if #s != 1 then
+		if #s > 1 then
 			for i=#s - 1, 1, -1 do
 				s[i] = s[i]:follow(s[i+1].tx, s[i+1].ty)
 			end
-			local diff_a = s[1].angle - s[2].angle
-			local new_a = s[1].angle
-			if diff_a < 0 then
-				new_a -= diff_a 
-			end
-			if diff_a >= 1 then
-				new_a -= 1 - diff_a
-			end
+			
+			--specific to left leg, should not exist in normal ik follow
+			local new_a = clamp(s[1].angle, 0.5, 1)
+
 			s[1] = seg:new(self.anchorx,self.anchory,s[1].len, new_a)
 			for i=2, #s, 1 do
 				s[i] = seg:new(s[i-1].hx,s[i-1].hy, s[i].len, s[i].angle)
