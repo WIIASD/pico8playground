@@ -4,10 +4,9 @@ function _init()
         {x=64, y=64},
         {x=63, y=63},
         {x=62, y=62},
-        {x=61, y=61},
     }
     local lens = {
-        25,25,25
+        15,15
     }
     c = chain:new(joints, lens)
 end
